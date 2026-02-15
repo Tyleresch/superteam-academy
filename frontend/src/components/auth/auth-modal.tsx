@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
-import { motion, AnimatePresence } from 'framer-motion';
 import {
   Wallet,
   Chrome,
@@ -12,7 +12,6 @@ import {
   Sparkles,
   Zap,
   Shield,
-  X,
   Loader2,
 } from 'lucide-react';
 import {
@@ -33,63 +32,73 @@ interface AuthModalProps {
 }
 
 export function AuthModal({ open, onOpenChange }: AuthModalProps) {
-  const { select, wallets, publicKey, connected, connect, connecting } = useWallet();
+  const router = useRouter();
   const { setVisible } = useWalletModal();
-  const { setUser, initDemoUser } = useUserStore();
+  const { initDemoUser } = useUserStore();
   const [isLoading, setIsLoading] = useState<string | null>(null);
 
-  const handleWalletConnect = useCallback(() => {
-    try {
-      onOpenChange(false);
-      setTimeout(() => {
-        setVisible(true);
-      }, 250);
-    } catch (error) {
-      console.error('Wallet connect error:', error);
-      toast.error('Failed to open wallet selector');
-    }
-  }, [onOpenChange, setVisible]);
+  const handleWalletConnect = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onOpenChange(false);
+    setTimeout(() => {
+      setVisible(true);
+    }, 300);
+  };
 
-  const handleGoogleSignIn = useCallback(async () => {
+  const handleGoogleSignIn = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     setIsLoading('google');
     try {
-      await new Promise((resolve) => setTimeout(resolve, 800));
       initDemoUser();
       onOpenChange(false);
       toast.success('Signed in with Google (Demo Mode)');
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 100);
     } catch (error) {
       console.error('Google sign-in error:', error);
-      toast.error('Failed to sign in with Google');
+      toast.error('Failed to sign in');
     } finally {
       setIsLoading(null);
     }
-  }, [initDemoUser, onOpenChange]);
+  };
 
-  const handleGithubSignIn = useCallback(async () => {
+  const handleGithubSignIn = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     setIsLoading('github');
     try {
-      await new Promise((resolve) => setTimeout(resolve, 800));
       initDemoUser();
       onOpenChange(false);
       toast.success('Signed in with GitHub (Demo Mode)');
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 100);
     } catch (error) {
       console.error('GitHub sign-in error:', error);
-      toast.error('Failed to sign in with GitHub');
+      toast.error('Failed to sign in');
     } finally {
       setIsLoading(null);
     }
-  }, [initDemoUser, onOpenChange]);
+  };
 
-  const handleDemoMode = useCallback(() => {
+  const handleDemoMode = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     try {
       initDemoUser();
       onOpenChange(false);
       toast.success('Welcome to Demo Mode! Explore freely.');
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 100);
     } catch (error) {
       console.error('Demo mode error:', error);
       toast.error('Something went wrong');
     }
-  }, [initDemoUser, onOpenChange]);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -140,6 +149,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
           {/* Social Sign-In */}
           <div className="grid grid-cols-2 gap-3">
             <Button
+              type="button"
               variant="outline"
               className="h-11 gap-2"
               onClick={handleGoogleSignIn}
@@ -153,6 +163,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
               {isLoading === 'google' ? 'Signing in...' : 'Google'}
             </Button>
             <Button
+              type="button"
               variant="outline"
               className="h-11 gap-2"
               onClick={handleGithubSignIn}
@@ -171,6 +182,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
           {/* Demo Mode */}
           <Button
+            type="button"
             variant="ghost"
             className="w-full h-11 gap-2 text-muted-foreground hover:text-foreground"
             onClick={handleDemoMode}

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -50,6 +50,7 @@ const NAV_ITEMS = [
 
 export function Header() {
   const pathname = usePathname();
+  const router = useRouter();
   const { theme, setTheme } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -246,17 +247,23 @@ export function Header() {
           ) : (
             <div className="flex items-center gap-2">
               <Button
+                type="button"
                 variant="ghost"
                 size="sm"
-                onClick={initDemoUser}
+                onClick={(e) => {
+                  e.preventDefault();
+                  initDemoUser();
+                  router.push('/dashboard');
+                }}
                 className="hidden sm:flex"
               >
                 {tc('demo')}
               </Button>
               <Button
+                type="button"
                 size="sm"
                 className="gap-2 bg-gradient-to-r from-[#9945FF] to-[#14F195] text-white hover:opacity-90 border-0"
-                onClick={() => setAuthModalOpen(true)}
+                onClick={(e) => { e.preventDefault(); setAuthModalOpen(true); }}
               >
                 <LogIn className="h-4 w-4" />
                 <span className="hidden sm:inline">{tc('startQuest')}</span>

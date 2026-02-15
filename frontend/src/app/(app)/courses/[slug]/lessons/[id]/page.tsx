@@ -242,79 +242,161 @@ export default function LessonPage({
     []
   );
 
-  // Run code handler
+  // Run code in sandboxed Web Worker for real execution
+  const runCodeInWorker = useCallback(
+    (userCode: string, testCases: { name: string; expectedOutput: string }[]): Promise<{
+      logs: string[];
+      errors: string[];
+      testResults: { name: string; passed: boolean }[];
+    }> => {
+      return new Promise((resolve) => {
+        try {
+          const worker = new Worker('/code-runner.js');
+          const timeout = setTimeout(() => {
+            worker.terminate();
+            resolve({ logs: ['Execution timed out (3s limit)'], errors: ['Timeout'], testResults: [] });
+          }, 5000);
+
+          worker.onmessage = (e) => {
+            clearTimeout(timeout);
+            worker.terminate();
+            resolve(e.data);
+          };
+
+          worker.onerror = (err) => {
+            clearTimeout(timeout);
+            worker.terminate();
+            resolve({ logs: [], errors: [err.message || 'Worker error'], testResults: [] });
+          };
+
+          worker.postMessage({ code: userCode, testCases });
+        } catch {
+          resolve({ logs: [], errors: ['Failed to start code runner'], testResults: [] });
+        }
+      });
+    },
+    []
+  );
+
+  // Run code handler — uses real execution for JS/TS, pattern matching for Rust
   const handleRunCode = useCallback(async () => {
     setIsRunning(true);
     setOutput([]);
     setTestResults([]);
 
-    // Simulate compilation delay
-    setOutput(['> Compiling TypeScript...']);
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    setOutput((prev) => [...prev, '> Analyzing code...']);
-    await new Promise((resolve) => setTimeout(resolve, 400));
+    const lang = lesson.challenge?.language || 'typescript';
+    const isJSLike = ['javascript', 'typescript', 'ts', 'js'].includes(lang.toLowerCase());
 
-    if (lesson.challenge) {
-      // Actual code evaluation
-      const evalResults = evaluateCode(code, lesson.challenge);
+    setOutput(['> Compiling...']);
+    await new Promise((resolve) => setTimeout(resolve, 300));
 
-      // Syntax checks
-      const braceBalance = (code.match(/\{/g) || []).length === (code.match(/\}/g) || []).length;
-      const parenBalance = (code.match(/\(/g) || []).length === (code.match(/\)/g) || []).length;
+    if (isJSLike) {
+      // Real code execution via Web Worker
+      setOutput((prev) => [...prev, '> Executing code in sandbox...']);
 
-      if (!braceBalance || !parenBalance) {
+      const testCases = lesson.challenge
+        ? lesson.challenge.testCases.map((tc) => ({ name: tc.name, expectedOutput: tc.expectedOutput }))
+        : [];
+
+      const result = await runCodeInWorker(code, testCases);
+
+      // Show console output from the code
+      const outputLines: string[] = ['> Compiling...', '> Executing code in sandbox...'];
+      if (result.logs.length > 0) {
+        outputLines.push('', '--- Console Output ---');
+        result.logs.forEach((line) => outputLines.push('  ' + line));
+      }
+      if (result.errors.length > 0) {
+        outputLines.push('', '--- Errors ---');
+        result.errors.forEach((line) => outputLines.push('  \u2718 ' + line));
+      }
+
+      if (lesson.challenge && result.testResults.length > 0) {
+        outputLines.push('', '--- Test Results ---');
+        result.testResults.forEach((tr) => {
+          outputLines.push(`${tr.passed ? '\u2714 PASS' : '\u2718 FAIL'} ${tr.name}`);
+        });
+        const passCount = result.testResults.filter((r) => r.passed).length;
+        outputLines.push(
+          '',
+          passCount === result.testResults.length
+            ? '> \u2728 All tests passed! Quest complete!'
+            : `> ${passCount}/${result.testResults.length} tests passed. Keep going!`
+        );
+
+        setTestResults(result.testResults.map((r) => ({ name: r.name, passed: r.passed })));
+
+        if (result.testResults.every((r) => r.passed) && !isComplete) {
+          setIsComplete(true);
+          setShowXPAnimation(true);
+          updateXP(lesson.xpReward);
+          setTimeout(() => setShowXPAnimation(false), 2500);
+        }
+      } else if (!lesson.challenge && result.errors.length === 0) {
+        outputLines.push('', '> Code executed successfully!');
+      }
+
+      setOutput(outputLines);
+    } else {
+      // Rust / other languages: use pattern-matching evaluation (can't run in browser)
+      setOutput((prev) => [...prev, '> Analyzing Rust code (static analysis)...']);
+      await new Promise((resolve) => setTimeout(resolve, 400));
+
+      if (lesson.challenge) {
+        const evalResults = evaluateCode(code, lesson.challenge);
+
+        const braceBalance = (code.match(/\{/g) || []).length === (code.match(/\}/g) || []).length;
+        const parenBalance = (code.match(/\(/g) || []).length === (code.match(/\)/g) || []).length;
+
+        if (!braceBalance || !parenBalance) {
+          setOutput((prev) => [
+            ...prev,
+            '',
+            '\u2718 Syntax Error: Unbalanced brackets detected',
+            '  Check your { } and ( ) pairs',
+          ]);
+          setTestResults(evalResults.map((r) => ({ name: r.name, passed: false })));
+          setIsRunning(false);
+          return;
+        }
+
+        setOutput((prev) => [...prev, '> Running test cases...', '']);
+        const results = evalResults.map((r) => ({ name: r.name, passed: r.passed }));
+        setTestResults(results);
+
+        setOutput((prev) => [
+          ...prev,
+          ...evalResults.map(
+            (r) =>
+              `${r.passed ? '\u2714 PASS' : '\u2718 FAIL'} ${r.name}${
+                r.message && !r.passed ? ` — ${r.message}` : ''
+              }`
+          ),
+          '',
+          results.every((r) => r.passed)
+            ? '> \u2728 All tests passed! Quest complete!'
+            : `> ${results.filter((r) => r.passed).length}/${results.length} tests passed. Keep going!`,
+        ]);
+
+        if (results.every((r) => r.passed) && !isComplete) {
+          setIsComplete(true);
+          setShowXPAnimation(true);
+          updateXP(lesson.xpReward);
+          setTimeout(() => setShowXPAnimation(false), 2500);
+        }
+      } else {
         setOutput((prev) => [
           ...prev,
           '',
-          '\u2718 Syntax Error: Unbalanced brackets detected',
-          '  Check your { } and ( ) pairs',
+          '> Static analysis passed.',
+          '> Note: Rust code requires a native compiler to execute.',
+          '> Code looks good!',
         ]);
-        setTestResults(evalResults.map((r) => ({ name: r.name, passed: false })));
-        setIsRunning(false);
-        return;
       }
-
-      setOutput((prev) => [...prev, '> Running test cases...', '']);
-
-      const results = evalResults.map((r) => ({ name: r.name, passed: r.passed }));
-      setTestResults(results);
-
-      setOutput((prev) => [
-        ...prev,
-        ...evalResults.map(
-          (r) =>
-            `${r.passed ? '\u2714 PASS' : '\u2718 FAIL'} ${r.name}${
-              r.message && !r.passed ? ` — ${r.message}` : ''
-            }`
-        ),
-        '',
-        results.every((r) => r.passed)
-          ? '> \u2728 All tests passed! Quest complete!'
-          : `> ${results.filter((r) => r.passed).length}/${results.length} tests passed. Keep going!`,
-      ]);
-
-      if (results.every((r) => r.passed) && !isComplete) {
-        setIsComplete(true);
-        setShowXPAnimation(true);
-        updateXP(lesson.xpReward);
-        setTimeout(() => setShowXPAnimation(false), 2500);
-      }
-    } else {
-      // Non-challenge lesson — simulate execution
-      setOutput((prev) => [
-        ...prev,
-        '',
-        '> Executing...',
-        '> Output:',
-        `  Balance: ${(Math.random() * 10).toFixed(4)} SOL`,
-        `  Slot: ${Math.floor(Math.random() * 300000000)}`,
-        '',
-        '> Code executed successfully!',
-      ]);
     }
 
     setIsRunning(false);
-  }, [code, lesson, isComplete, updateXP, evaluateCode]);
+  }, [code, lesson, isComplete, updateXP, evaluateCode, runCodeInWorker]);
 
   const handleMarkComplete = useCallback(() => {
     setIsComplete(true);

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -13,6 +13,7 @@ import {
   Zap,
   Shield,
   X,
+  Loader2,
 } from 'lucide-react';
 import {
   Dialog,
@@ -37,43 +38,58 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   const { setUser, initDemoUser } = useUserStore();
   const [isLoading, setIsLoading] = useState<string | null>(null);
 
-  const handleWalletConnect = async () => {
-    setIsLoading('wallet');
+  const handleWalletConnect = useCallback(() => {
     try {
-      setVisible(true);
       onOpenChange(false);
+      setTimeout(() => {
+        setVisible(true);
+      }, 250);
     } catch (error) {
-      toast.error('Failed to connect wallet');
+      console.error('Wallet connect error:', error);
+      toast.error('Failed to open wallet selector');
+    }
+  }, [onOpenChange, setVisible]);
+
+  const handleGoogleSignIn = useCallback(async () => {
+    setIsLoading('google');
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      initDemoUser();
+      onOpenChange(false);
+      toast.success('Signed in with Google (Demo Mode)');
+    } catch (error) {
+      console.error('Google sign-in error:', error);
+      toast.error('Failed to sign in with Google');
     } finally {
       setIsLoading(null);
     }
-  };
+  }, [initDemoUser, onOpenChange]);
 
-  const handleGoogleSignIn = async () => {
-    setIsLoading('google');
-    // Stub: In production, redirect to Supabase Google OAuth
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    initDemoUser();
-    toast.success('Signed in with Google (Demo)');
-    onOpenChange(false);
-    setIsLoading(null);
-  };
-
-  const handleGithubSignIn = async () => {
+  const handleGithubSignIn = useCallback(async () => {
     setIsLoading('github');
-    // Stub: In production, redirect to Supabase GitHub OAuth
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    initDemoUser();
-    toast.success('Signed in with GitHub (Demo)');
-    onOpenChange(false);
-    setIsLoading(null);
-  };
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      initDemoUser();
+      onOpenChange(false);
+      toast.success('Signed in with GitHub (Demo Mode)');
+    } catch (error) {
+      console.error('GitHub sign-in error:', error);
+      toast.error('Failed to sign in with GitHub');
+    } finally {
+      setIsLoading(null);
+    }
+  }, [initDemoUser, onOpenChange]);
 
-  const handleDemoMode = () => {
-    initDemoUser();
-    toast.success('Welcome to Demo Mode!');
-    onOpenChange(false);
-  };
+  const handleDemoMode = useCallback(() => {
+    try {
+      initDemoUser();
+      onOpenChange(false);
+      toast.success('Welcome to Demo Mode! Explore freely.');
+    } catch (error) {
+      console.error('Demo mode error:', error);
+      toast.error('Something went wrong');
+    }
+  }, [initDemoUser, onOpenChange]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -97,23 +113,22 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
         <div className="p-6 pt-2 space-y-4">
           {/* Wallet Connect - Primary */}
-          <Button
-            variant="outline"
-            className="w-full h-14 justify-between text-left gap-3 border-primary/20 hover:border-primary/40 hover:bg-primary/5"
+          <button
+            type="button"
+            className="w-full h-14 flex items-center justify-between gap-3 px-4 rounded-md border border-primary/20 hover:border-primary/40 hover:bg-primary/5 transition-colors cursor-pointer"
             onClick={handleWalletConnect}
-            disabled={isLoading !== null}
           >
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#9945FF] to-[#14F195] flex items-center justify-center">
                 <Wallet className="h-4 w-4 text-white" />
               </div>
-              <div>
+              <div className="text-left">
                 <p className="font-medium text-sm">Connect Wallet</p>
                 <p className="text-xs text-muted-foreground">Phantom, Solflare, & more</p>
               </div>
             </div>
             <ArrowRight className="h-4 w-4 text-muted-foreground" />
-          </Button>
+          </button>
 
           <div className="relative">
             <Separator />
@@ -130,8 +145,12 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
               onClick={handleGoogleSignIn}
               disabled={isLoading !== null}
             >
-              <Chrome className="h-4 w-4" />
-              Google
+              {isLoading === 'google' ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Chrome className="h-4 w-4" />
+              )}
+              {isLoading === 'google' ? 'Signing in...' : 'Google'}
             </Button>
             <Button
               variant="outline"
@@ -139,8 +158,12 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
               onClick={handleGithubSignIn}
               disabled={isLoading !== null}
             >
-              <Github className="h-4 w-4" />
-              GitHub
+              {isLoading === 'github' ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Github className="h-4 w-4" />
+              )}
+              {isLoading === 'github' ? 'Signing in...' : 'GitHub'}
             </Button>
           </div>
 

@@ -13,7 +13,10 @@ import {
   Eye,
   Download,
   Save,
+  Check,
 } from 'lucide-react';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -39,6 +42,8 @@ export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
   const { user, isAuthenticated, updatePreferences, initDemoUser } =
     useUserStore();
+  const { connected, publicKey } = useWallet();
+  const { setVisible: setWalletModalVisible } = useWalletModal();
   const [displayName, setDisplayName] = useState(
     user?.displayName || 'Quest Hero'
   );
@@ -49,6 +54,18 @@ export default function SettingsPage() {
   const [notifications, setNotifications] = useState(
     user?.preferences?.notifications ?? true
   );
+
+  const handleConnectWallet = () => {
+    setWalletModalVisible(true);
+  };
+
+  const handleLinkGoogle = () => {
+    toast.success('Google linking will be available when OAuth is configured. Using demo mode for now.');
+  };
+
+  const handleLinkGithub = () => {
+    toast.success('GitHub linking will be available when OAuth is configured. Using demo mode for now.');
+  };
 
   if (!isAuthenticated) {
     return (
@@ -250,14 +267,23 @@ export default function SettingsPage() {
                     <Wallet className="h-5 w-5 text-quest-purple" />
                     <div>
                       <p className="text-sm font-medium">Solana Wallet</p>
-                      <p className="text-xs text-muted-foreground">
-                        {user?.walletAddress || 'Not connected'}
+                      <p className="text-xs text-muted-foreground font-mono">
+                        {connected && publicKey
+                          ? `${publicKey.toBase58().slice(0, 6)}...${publicKey.toBase58().slice(-4)}`
+                          : 'Not connected'}
                       </p>
                     </div>
                   </div>
-                  <Button variant="outline" size="sm">
-                    {user?.walletAddress ? 'Connected' : 'Connect'}
-                  </Button>
+                  {connected ? (
+                    <Badge variant="outline" className="gap-1 text-green-500 border-green-500/30">
+                      <Check className="h-3 w-3" />
+                      Connected
+                    </Badge>
+                  ) : (
+                    <Button variant="outline" size="sm" onClick={handleConnectWallet}>
+                      Connect
+                    </Button>
+                  )}
                 </div>
                 <div className="flex items-center justify-between p-3 rounded-lg border border-border/50">
                   <div className="flex items-center gap-3">
@@ -269,7 +295,7 @@ export default function SettingsPage() {
                       </p>
                     </div>
                   </div>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={handleLinkGoogle}>
                     Link
                   </Button>
                 </div>
@@ -285,7 +311,7 @@ export default function SettingsPage() {
                       </p>
                     </div>
                   </div>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={handleLinkGithub}>
                     Link
                   </Button>
                 </div>

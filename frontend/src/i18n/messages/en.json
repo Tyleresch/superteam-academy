@@ -146,6 +146,17 @@
     "share": "Share",
     "nftMetadata": "NFT Metadata"
   },
+  "footer": {
+    "newsletter": "Stay in the loop",
+    "newsletterSubtitle": "Get notified about new quests, features, and community events.",
+    "subscribe": "Subscribe",
+    "platform": "Platform",
+    "resources": "Resources",
+    "community": "Community",
+    "description": "Your RPG adventure into Solana development. Level up your skills and earn on-chain credentials.",
+    "copyright": "Solana Quest by Superteam Brazil. Open source under MIT License.",
+    "poweredBy": "Powered by"
+  },
   "gamification": {
     "levelTitles": {
       "0": "Novice",

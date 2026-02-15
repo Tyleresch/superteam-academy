@@ -146,6 +146,17 @@
     "share": "Compartilhar",
     "nftMetadata": "Metadados do NFT"
   },
+  "footer": {
+    "newsletter": "Fique por dentro",
+    "newsletterSubtitle": "Receba notificações sobre novas missões, funcionalidades e eventos da comunidade.",
+    "subscribe": "Inscrever-se",
+    "platform": "Plataforma",
+    "resources": "Recursos",
+    "community": "Comunidade",
+    "description": "Sua aventura RPG no desenvolvimento Solana. Evolua suas habilidades e ganhe credenciais on-chain.",
+    "copyright": "Solana Quest por Superteam Brazil. Código aberto sob licença MIT.",
+    "poweredBy": "Alimentado por"
+  },
   "gamification": {
     "levelTitles": {
       "0": "Novato",

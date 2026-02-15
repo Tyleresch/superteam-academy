@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { Github, Twitter, MessageCircle, ExternalLink, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,6 +31,7 @@ const footerLinks = {
 };
 
 export function Footer() {
+  const t = useTranslations('footer');
   const [email, setEmail] = useState('');
 
   const handleNewsletterSubmit = (e: React.FormEvent) => {
@@ -47,9 +49,9 @@ export function Footer() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
             <div>
-              <h3 className="text-lg font-bold mb-1">Stay in the loop</h3>
+              <h3 className="text-lg font-bold mb-1">{t('newsletter')}</h3>
               <p className="text-sm text-muted-foreground">
-                Get notified about new quests, features, and community events.
+                {t('newsletterSubtitle')}
               </p>
             </div>
             <form onSubmit={handleNewsletterSubmit} className="flex gap-2 w-full sm:w-auto">
@@ -66,7 +68,7 @@ export function Footer() {
                 className="gap-2 bg-gradient-to-r from-[#9945FF] to-[#14F195] text-white hover:opacity-90 border-0 flex-shrink-0"
               >
                 <Mail className="h-4 w-4" />
-                Subscribe
+                {t('subscribe')}
               </Button>
             </form>
           </div>
@@ -90,8 +92,7 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-sm text-muted-foreground mb-4 max-w-[240px]">
-              Your RPG adventure into Solana development. Level up your skills and earn on-chain
-              credentials.
+              {t('description')}
             </p>
             <div className="flex gap-3">
               <a
@@ -123,7 +124,7 @@ export function Footer() {
 
           {/* Platform */}
           <div>
-            <h3 className="text-sm font-semibold mb-3">Platform</h3>
+            <h3 className="text-sm font-semibold mb-3">{t('platform')}</h3>
             <ul className="space-y-2">
               {footerLinks.platform.map((link) => (
                 <li key={link.href}>
@@ -140,7 +141,7 @@ export function Footer() {
 
           {/* Resources */}
           <div>
-            <h3 className="text-sm font-semibold mb-3">Resources</h3>
+            <h3 className="text-sm font-semibold mb-3">{t('resources')}</h3>
             <ul className="space-y-2">
               {footerLinks.resources.map((link) => (
                 <li key={link.href}>
@@ -160,7 +161,7 @@ export function Footer() {
 
           {/* Community */}
           <div>
-            <h3 className="text-sm font-semibold mb-3">Community</h3>
+            <h3 className="text-sm font-semibold mb-3">{t('community')}</h3>
             <ul className="space-y-2">
               {footerLinks.community.map((link) => (
                 <li key={link.href}>
@@ -182,11 +183,10 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="border-t border-border/40 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-muted-foreground">
-            &copy; {new Date().getFullYear()} Solana Quest by Superteam Brazil. Open source under
-            MIT License.
+            &copy; {new Date().getFullYear()} {t('copyright')}
           </p>
           <div className="flex items-center gap-1 text-xs text-muted-foreground">
-            <span>Powered by</span>
+            <span>{t('poweredBy')}</span>
             <span className="bg-gradient-to-r from-[#9945FF] to-[#14F195] bg-clip-text text-transparent font-semibold">
               Solana
             </span>

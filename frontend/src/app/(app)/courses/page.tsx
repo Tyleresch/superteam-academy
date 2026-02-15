@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import {
   Search,
@@ -30,6 +31,8 @@ import { DIFFICULTY_CONFIG, TRACK_INFO } from '@/config/constants';
 import { Course, LearningTrack } from '@/types';
 
 export default function CoursesPage() {
+  const t = useTranslations('courses');
+  const td = useTranslations('courses.difficulty');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
   const [selectedTrack, setSelectedTrack] = useState<string>('all');
@@ -106,11 +109,10 @@ export default function CoursesPage() {
               Quest Board
             </Badge>
             <h1 className="text-3xl sm:text-4xl font-bold mb-2">
-              Explore Quests
+              {t('title')}
             </h1>
             <p className="text-muted-foreground max-w-xl">
-              Choose your next adventure. Each quest levels up your skills and
-              earns you XP and on-chain credentials.
+              {t('subtitle')}
             </p>
           </motion.div>
         </div>
@@ -124,7 +126,7 @@ export default function CoursesPage() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search quests..."
+                placeholder={t('searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-9"
@@ -139,10 +141,10 @@ export default function CoursesPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Levels</SelectItem>
-                  <SelectItem value="beginner">Beginner</SelectItem>
-                  <SelectItem value="intermediate">Intermediate</SelectItem>
-                  <SelectItem value="advanced">Advanced</SelectItem>
-                  <SelectItem value="legendary">Legendary</SelectItem>
+                  <SelectItem value="beginner">{td('beginner')}</SelectItem>
+                  <SelectItem value="intermediate">{td('intermediate')}</SelectItem>
+                  <SelectItem value="advanced">{td('advanced')}</SelectItem>
+                  <SelectItem value="legendary">{td('legendary')}</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -200,7 +202,7 @@ export default function CoursesPage() {
           {filteredCourses.length === 0 ? (
             <div className="text-center py-20">
               <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">No quests found</h3>
+              <h3 className="text-lg font-medium mb-2">{t('noResults')}</h3>
               <p className="text-sm text-muted-foreground mb-4">
                 Try adjusting your filters or search query
               </p>
@@ -222,6 +224,7 @@ export default function CoursesPage() {
 }
 
 function CourseCard({ course, index }: { course: Course; index: number }) {
+  const t = useTranslations('courses');
   const diffConfig = DIFFICULTY_CONFIG[course.difficulty];
   const trackInfo = TRACK_INFO[course.track];
   const totalLessons = course.modules.reduce(
@@ -278,7 +281,7 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
             <div className="absolute bottom-3 left-3">
               <span className="flex items-center gap-1 text-xs text-muted-foreground">
                 <Users className="h-3 w-3" />
-                {course.enrollmentCount.toLocaleString()} enrolled
+                {course.enrollmentCount.toLocaleString()} {t('enrolled')}
               </span>
             </div>
           </div>
@@ -311,7 +314,7 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
                 </span>
                 <span className="flex items-center gap-1">
                   <BookOpen className="h-3 w-3" />
-                  {totalLessons} lessons
+                  {totalLessons} {t('lessons')}
                 </span>
               </div>
               <div className="flex items-center gap-1">

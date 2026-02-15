@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import {
   Trophy,
@@ -33,6 +34,8 @@ const rankIcons: Record<number, typeof Crown> = {
 };
 
 export default function LeaderboardPage() {
+  const t = useTranslations('leaderboard');
+  const tc = useTranslations('common');
   const [timeframe, setTimeframe] = useState<string>('alltime');
   const { user, xp, level } = useUserStore();
 
@@ -52,11 +55,10 @@ export default function LeaderboardPage() {
               </div>
             </div>
             <h1 className="text-3xl sm:text-4xl font-bold mb-2">
-              Hall of Champions
+              {t('title')}
             </h1>
             <p className="text-muted-foreground max-w-xl mx-auto">
-              The greatest Solana builders ranked by XP. Climb the ranks by
-              completing quests and earning achievements.
+              {t('subtitle')}
             </p>
           </motion.div>
         </div>
@@ -66,9 +68,9 @@ export default function LeaderboardPage() {
         {/* Timeframe Tabs */}
         <Tabs value={timeframe} onValueChange={setTimeframe} className="mb-6">
           <TabsList className="grid w-full max-w-md mx-auto grid-cols-3">
-            <TabsTrigger value="weekly">Weekly</TabsTrigger>
-            <TabsTrigger value="monthly">Monthly</TabsTrigger>
-            <TabsTrigger value="alltime">All Time</TabsTrigger>
+            <TabsTrigger value="weekly">{t('weekly')}</TabsTrigger>
+            <TabsTrigger value="monthly">{t('monthly')}</TabsTrigger>
+            <TabsTrigger value="alltime">{t('allTime')}</TabsTrigger>
           </TabsList>
         </Tabs>
 
@@ -191,7 +193,7 @@ export default function LeaderboardPage() {
                           )}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {entry.title} &bull; Level {entry.level}
+                          {entry.title} &bull; {tc('level')} {entry.level}
                         </p>
                       </div>
                     </div>

@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import {
@@ -60,6 +61,8 @@ const rarityColors = {
 };
 
 export default function ProfilePage() {
+  const t = useTranslations('profile');
+  const tc = useTranslations('common');
   const { user, isAuthenticated, xp, level, profile, initDemoUser } =
     useUserStore();
   const { balance, connected, publicKey } = useWalletBalance();
@@ -81,7 +84,7 @@ export default function ProfilePage() {
               Sign in to see your achievements, credentials, and quest progress.
             </p>
             <Button onClick={initDemoUser} className="gap-2 bg-gradient-to-r from-[#9945FF] to-[#14F195] text-white hover:opacity-90 border-0">
-              Try Demo Mode
+              {tc('demo')}
             </Button>
           </CardContent>
         </Card>
@@ -170,7 +173,7 @@ export default function ProfilePage() {
             <Link href="/settings">
               <Button variant="outline" size="sm" className="gap-2">
                 <Settings className="h-4 w-4" />
-                Edit Profile
+                {t('editProfile')}
               </Button>
             </Link>
           </div>
@@ -180,9 +183,9 @@ export default function ProfilePage() {
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-8">
         <Tabs defaultValue="overview">
           <TabsList className="mb-6">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="achievements">Achievements</TabsTrigger>
-            <TabsTrigger value="credentials">Credentials</TabsTrigger>
+            <TabsTrigger value="overview">{t('overview')}</TabsTrigger>
+            <TabsTrigger value="achievements">{t('achievements')}</TabsTrigger>
+            <TabsTrigger value="credentials">{t('credentials')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
@@ -192,7 +195,7 @@ export default function ProfilePage() {
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm flex items-center gap-2">
                     <Star className="h-4 w-4 text-quest-gold" />
-                    Level Progress
+                    {t('levelProgress')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -221,7 +224,7 @@ export default function ProfilePage() {
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm flex items-center gap-2">
                     <Target className="h-4 w-4 text-quest-cyan" />
-                    Skill Tree
+                    {t('skillTree')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -268,7 +271,7 @@ export default function ProfilePage() {
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <BookOpen className="h-4 w-4" />
-                  Quest Progress
+                  {t('questProgress')}
                 </CardTitle>
               </CardHeader>
               <CardContent>

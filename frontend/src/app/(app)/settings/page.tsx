@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import {
   User,
@@ -39,6 +40,8 @@ import { SUPPORTED_LANGUAGES } from '@/config/constants';
 import toast from 'react-hot-toast';
 
 export default function SettingsPage() {
+  const t = useTranslations('settings');
+  const tc = useTranslations('common');
   const { theme, setTheme } = useTheme();
   const { user, isAuthenticated, updatePreferences, initDemoUser } =
     useUserStore();
@@ -101,9 +104,9 @@ export default function SettingsPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <h1 className="text-3xl font-bold mb-2">Settings</h1>
+            <h1 className="text-3xl font-bold mb-2">{t('title')}</h1>
             <p className="text-muted-foreground">
-              Manage your profile, preferences, and account settings.
+              {t('subtitle')}
             </p>
           </motion.div>
         </div>
@@ -114,15 +117,15 @@ export default function SettingsPage() {
           <TabsList className="mb-6">
             <TabsTrigger value="profile" className="gap-2">
               <User className="h-3.5 w-3.5" />
-              Profile
+              {t('profileTab')}
             </TabsTrigger>
             <TabsTrigger value="preferences" className="gap-2">
               <Palette className="h-3.5 w-3.5" />
-              Preferences
+              {t('preferencesTab')}
             </TabsTrigger>
             <TabsTrigger value="account" className="gap-2">
               <Shield className="h-3.5 w-3.5" />
-              Account
+              {t('accountTab')}
             </TabsTrigger>
           </TabsList>
 
@@ -256,7 +259,7 @@ export default function SettingsPage() {
           <TabsContent value="account" className="space-y-6">
             <Card className="border-border/50">
               <CardHeader>
-                <CardTitle>Connected Accounts</CardTitle>
+                <CardTitle>{t('connectedAccounts')}</CardTitle>
                 <CardDescription>
                   Link additional sign-in methods to your account.
                 </CardDescription>
@@ -320,7 +323,7 @@ export default function SettingsPage() {
 
             <Card className="border-border/50">
               <CardHeader>
-                <CardTitle>Privacy</CardTitle>
+                <CardTitle>{t('privacy')}</CardTitle>
                 <CardDescription>
                   Control your profile visibility and data.
                 </CardDescription>

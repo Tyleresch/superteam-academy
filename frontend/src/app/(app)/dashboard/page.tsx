@@ -2,6 +2,7 @@
 
 import { useMemo } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import {
   Zap,
@@ -29,6 +30,8 @@ import { TRACK_INFO, XP_CONFIG, getLevelTitle, DIFFICULTY_CONFIG } from '@/confi
 import { StreakCalendar } from '@/components/gamification/streak-calendar';
 
 export default function DashboardPage() {
+  const t = useTranslations('dashboard');
+  const tc = useTranslations('common');
   const { user, isAuthenticated, xp, level, profile, initDemoUser } =
     useUserStore();
 
@@ -55,7 +58,7 @@ export default function DashboardPage() {
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#9945FF] to-[#14F195] mx-auto mb-4 flex items-center justify-center">
               <Sparkles className="h-8 w-8 text-white" />
             </div>
-            <h2 className="text-2xl font-bold mb-2">Begin Your Quest</h2>
+            <h2 className="text-2xl font-bold mb-2">{tc('startQuest')}</h2>
             <p className="text-muted-foreground mb-6">
               Connect your wallet or sign in to track your progress, earn XP, and
               collect on-chain credentials.
@@ -66,7 +69,7 @@ export default function DashboardPage() {
                 onClick={initDemoUser}
               >
                 <Zap className="h-4 w-4" />
-                Try Demo Mode
+                {tc('demo')}
               </Button>
               <Link href="/courses">
                 <Button variant="outline" className="w-full gap-2">
@@ -98,11 +101,11 @@ export default function DashboardPage() {
             </Avatar>
             <div>
               <h1 className="text-2xl font-bold">
-                Welcome back, {user?.displayName || 'Quest Hero'}
+                {t('welcome')}, {user?.displayName || 'Quest Hero'}
               </h1>
               <p className="text-muted-foreground">
-                {getLevelTitle(effectiveLevel)} &bull; Level {effectiveLevel} &bull;
-                Rank #{effectiveProfile.rank}
+                {getLevelTitle(effectiveLevel)} &bull; {tc('level')} {effectiveLevel} &bull;
+                {tc('rank')} #{effectiveProfile.rank}
               </p>
             </div>
           </motion.div>
@@ -119,7 +122,7 @@ export default function DashboardPage() {
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Zap className="h-4 w-4 text-quest-gold" />
-                    <span className="text-xs text-muted-foreground">Total XP</span>
+                    <span className="text-xs text-muted-foreground">{t('totalXP')}</span>
                   </div>
                   <p className="text-2xl font-bold">{effectiveXP.toLocaleString()}</p>
                 </CardContent>
@@ -128,7 +131,7 @@ export default function DashboardPage() {
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <TrendingUp className="h-4 w-4 text-quest-purple" />
-                    <span className="text-xs text-muted-foreground">Level</span>
+                    <span className="text-xs text-muted-foreground">{tc('level')}</span>
                   </div>
                   <p className="text-2xl font-bold">{effectiveLevel}</p>
                 </CardContent>
@@ -137,7 +140,7 @@ export default function DashboardPage() {
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Flame className="h-4 w-4 text-orange-500" />
-                    <span className="text-xs text-muted-foreground">Streak</span>
+                    <span className="text-xs text-muted-foreground">{tc('streak')}</span>
                   </div>
                   <p className="text-2xl font-bold">
                     {effectiveProfile.streak.currentStreak}
@@ -148,7 +151,7 @@ export default function DashboardPage() {
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Trophy className="h-4 w-4 text-quest-gold" />
-                    <span className="text-xs text-muted-foreground">Rank</span>
+                    <span className="text-xs text-muted-foreground">{tc('rank')}</span>
                   </div>
                   <p className="text-2xl font-bold">#{effectiveProfile.rank}</p>
                 </CardContent>
@@ -185,7 +188,7 @@ export default function DashboardPage() {
             {/* Active Quests */}
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold">Active Quests</h2>
+                <h2 className="text-lg font-bold">{t('activeQuests')}</h2>
                 <Link href="/courses">
                   <Button variant="ghost" size="sm" className="gap-1 text-xs">
                     Browse All
@@ -253,7 +256,7 @@ export default function DashboardPage() {
 
             {/* Recommended Courses */}
             <div>
-              <h2 className="text-lg font-bold mb-4">Recommended Quests</h2>
+              <h2 className="text-lg font-bold mb-4">{t('recommended')}</h2>
               <div className="grid sm:grid-cols-2 gap-4">
                 {MOCK_COURSES.filter(
                   (c) => !Object.keys(MOCK_PROGRESS).includes(c.id)
@@ -328,7 +331,7 @@ export default function DashboardPage() {
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-sm flex items-center gap-2">
                     <Award className="h-4 w-4 text-quest-purple" />
-                    Achievements
+                    {t('achievements')}
                   </CardTitle>
                   <Link href="/profile">
                     <Button variant="ghost" size="sm" className="text-xs h-7">
@@ -373,7 +376,7 @@ export default function DashboardPage() {
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <Target className="h-4 w-4 text-quest-cyan" />
-                  Skills
+                  {t('skills')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
